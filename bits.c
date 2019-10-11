@@ -296,7 +296,7 @@ int howManyBits(int x) {
   x = x>>temp4;
 
   temp5 = !!(x>>1);
-  return (temp1 + temp2 + temp3 + temp4 + temp5 + NotNegative);
+  return (temp1 + temp2 + temp3 + temp4 + temp5 + NotNegative + 1);
 }
 //float
 /* 
