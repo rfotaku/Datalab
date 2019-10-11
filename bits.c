@@ -242,7 +242,7 @@ int isLessOrEqual(int x, int y) {
   int chaflag = (cha>>31)&1;
   /*if not same Not+Same = 1 , (NotSame^yflag) == result*/
   /*if same Notsame = 0 , !chaflag == result*/
-  return (NotSame&(NotSame^yflag))|(!NotSame)&(!chaflag);
+  return (NotSame&(NotSame^yflag))|((!NotSame)&(!chaflag));
 }
 //4
 /* 
@@ -268,9 +268,35 @@ int logicalNeg(int x) {
  *  Max ops: 90
  *  Rating: 4
  */
+
 int howManyBits(int x) {
-  int flag == (x>>31)&1;
-  return 0;
+  int xflag = (x>>31)&1;
+  int NotNegative = !xflag;
+/*get the absolute value*/
+  int flag = xflag + (~0);
+  x = (flag&x) | ((~flag)&(~x+1));
+/*( absolute value / 2 )+1+NotNegative = result*/
+  int temp1,temp2,temp3,temp4,temp5;
+  int sign;
+
+  sign = !!(x>>16);
+  temp1 = 4<<sign;
+  x = x>>temp1;
+
+  sign = !!(x>>8);
+  temp2 = 3<<sign;
+  x = x>>temp2;
+
+  sign = !!(x>>4);
+  temp3 = 2<<sign;
+  x = x>>temp3;
+
+  sign = !!(x>>2);
+  temp4 = 1<<sign;
+  x = x>>temp4;
+
+  temp5 = !!(x>>1);
+  return (temp1 + temp2 + temp3 + temp4 + temp5 + NotNegative);
 }
 //float
 /* 
@@ -284,6 +310,7 @@ int howManyBits(int x) {
  *   Max ops: 30
  *   Rating: 4
  */
+
 unsigned floatScale2(unsigned uf) {
   return 2;
 }
@@ -299,6 +326,7 @@ unsigned floatScale2(unsigned uf) {
  *   Max ops: 30
  *   Rating: 4
  */
+
 int floatFloat2Int(unsigned uf) {
   return 2;
 }
@@ -315,6 +343,7 @@ int floatFloat2Int(unsigned uf) {
  *   Max ops: 30 
  *   Rating: 4
  */
+
 unsigned floatPower2(int x) {
     return 2;
 }
