@@ -156,7 +156,7 @@ int bitXor(int x, int y) {
  */
 int tmin(void) {
 /* -2^31 */
-  return 31<<1;
+  return 1<<31;
 
 }
 //2
@@ -168,9 +168,8 @@ int tmin(void) {
  *   Rating: 1
  */
 int isTmax(int x) {
-/* Tmax is 0x7FFFFFFF , Tmax + 1 =  0x80000000 , left shift 1 get 0 , 
-   if not Tmax , left shift 1 can not get 0 */
-  return !(1<<(x+1));
+  int y = (1<<31) + (~0);
+  return (!(x^y));
 }
 /* 
  * allOddBits - return 1 if all odd-numbered bits in word set to 1
@@ -280,19 +279,19 @@ int howManyBits(int x) {
   int sign;
 
   sign = !!(x>>16);
-  temp1 = 4<<sign;
+  temp1 = sign<<4;
   x = x>>temp1;
 
   sign = !!(x>>8);
-  temp2 = 3<<sign;
+  temp2 = sign<<3;
   x = x>>temp2;
 
   sign = !!(x>>4);
-  temp3 = 2<<sign;
+  temp3 = sign<<2;
   x = x>>temp3;
 
   sign = !!(x>>2);
-  temp4 = 1<<sign;
+  temp4 = sign<<1;
   x = x>>temp4;
 
   temp5 = !!(x>>1);
@@ -312,15 +311,15 @@ int howManyBits(int x) {
  */
 
 unsigned floatScale2(unsigned uf) {
-  unsigned sign = uf&0x80000000
+  unsigned sign = uf&0x80000000;
   unsigned exp = uf&0x7F800000;
   unsigned frac = uf&0x007FFFFF;
 /* NaN and infinite*/
   if(!(exp^0x7F800000)) return uf;
 /* Innormalize */
-  if(!exp) return 1<<uf;
+  if(!exp) return uf<<1;
 /* Normalize */
-  return (sign|(exp+(23<<1))|frac);
+  return (sign|(exp+(1<<23))|frac);
 }
 /* 
  * floatFloat2Int - Return bit-level equivalent of expression (int) f
@@ -336,7 +335,7 @@ unsigned floatScale2(unsigned uf) {
  */
 
 int floatFloat2Int(unsigned uf) {
-  unsigned sign = uf&0x80000000
+  unsigned sign = uf&0x80000000;
   unsigned exp = uf&0x7F800000;
   unsigned frac = uf&0x007FFFFF;
 /*out of range*/
@@ -345,7 +344,7 @@ int floatFloat2Int(unsigned uf) {
   if(!exp)  return 0;
 /*Normalize*/
   int E = (exp>>23)+(~127)+1;
-  return ((E<<1)|(frac>>(24+(~E)))|sign);
+  return ((1<<E)|(frac>>(24+(~E)))|sign);
 }
 /* 
  * floatPower2 - Return bit-level equivalent of the expression 2.0^x
@@ -367,5 +366,5 @@ unsigned floatPower2(int x) {
 /*too large*/
   if(x > 127) return 0x7F800000;
 /*Normalize*/
-    return 23<<(x+127);
+    return (x+127)<<23;
 }
