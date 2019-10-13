@@ -209,8 +209,10 @@ int negate(int x) {
 int isAsciiDigit(int x) {
 /* hbyte means half byte , set the bits (higher than 4) 0 
    0xA + 6 = 0x10 so that >>4 can not turn 0 */
+  int ZeroFlag = !(x>>8);
+  int Flag = ~(ZeroFlag + (~0));
   int hbyte = 0x30^x;
-  return !((hbyte+6)>>4);
+  return (!((hbyte+6)>>4))&Flag;
 }
 /* 
  * conditional - same as x ? y : z 
@@ -270,32 +272,60 @@ int logicalNeg(int x) {
 
 int howManyBits(int x) {
   int xflag = (x>>31)&1;
-  int NotNegative = !xflag;
+  int NotZero = (!x) + (~0);
+  int NotFF = (!(x+1)) + (~0);
+  int NotSpe = NotZero & NotFF;
 /*get the absolute value*/
+
   int flag = xflag + (~0);
-  x = (flag&x) | ((~flag)&(~x+1));
-/*( absolute value / 2 )+1+NotNegative = result*/
+/*
+  int abs = (flag&x) | ((~flag)&(~x+1));
+*/
+/*log(absolute value)*/
   int temp1,temp2,temp3,temp4,temp5;
   int sign;
-
-  sign = !!(x>>16);
+/*if x > 0*/
+  int abs = x;
+  sign = !!(abs>>16);
   temp1 = sign<<4;
-  x = x>>temp1;
+  abs = abs>>temp1;
 
-  sign = !!(x>>8);
+  sign = !!(abs>>8);
   temp2 = sign<<3;
-  x = x>>temp2;
+  abs = abs>>temp2;
 
-  sign = !!(x>>4);
+  sign = !!(abs>>4);
   temp3 = sign<<2;
-  x = x>>temp3;
+  abs = abs>>temp3;
 
-  sign = !!(x>>2);
+  sign = !!(abs>>2);
   temp4 = sign<<1;
-  x = x>>temp4;
+  abs = abs>>temp4;
 
-  temp5 = !!(x>>1);
-  return (temp1 + temp2 + temp3 + temp4 + temp5 + NotNegative + 1);
+  temp5 = !!(abs>>1);
+  int PosRet = (temp1 + temp2 + temp3 + temp4 + temp5 + 2);
+/*if x <= 0*/
+  int negx = ~x;
+  sign = !!(negx>>16);
+  temp1 = sign<<4;
+  negx = negx>>temp1;
+
+  sign = !!(negx>>8);
+  temp2 = sign<<3;
+  negx = negx>>temp2;
+
+  sign = !!(negx>>4);
+  temp3 = sign<<2;
+  negx = negx>>temp3;
+
+  sign = !!(negx>>2);
+  temp4 = sign<<1;
+  negx = negx>>temp4;
+
+  temp5 = !!(negx>>1);
+  int NegRet = (temp1 + temp2 + temp3 + temp4 + temp5 + 2);
+  int NotSpeRet = (flag&PosRet)|((~flag)&(NegRet));
+  return (NotSpe & NotSpeRet)|((~NotSpe)&1);
 }
 //float
 /* 
@@ -317,7 +347,7 @@ unsigned floatScale2(unsigned uf) {
 /* NaN and infinite*/
   if(!(exp^0x7F800000)) return uf;
 /* Innormalize */
-  if(!exp) return uf<<1;
+  if(!exp) return (uf<<1)|sign;
 /* Normalize */
   return (sign|(exp+(1<<23))|frac);
 }
@@ -343,8 +373,15 @@ int floatFloat2Int(unsigned uf) {
 /*Innormalize*/
   if(!exp)  return 0;
 /*Normalize*/
-  int E = (exp>>23)+(~127)+1;
-  return ((1<<E)|(frac>>(24+(~E)))|sign);
+  int Negflag = (!sign) + (~0);
+  int E = ((exp>>23)&0xFF) + (~127) + 1;
+  int signE = (E>>31)&1;
+  if(!E) return (Negflag&(~0))|((~Negflag)&1);
+  if(signE) return 0;
+  int NotOver = ((E + (~32) + 1)>>31)&1;
+  if(NotOver)
+  return (1<<E) + (frac>>(24 + (~E)));
+  return 0x80000000u;
 }
 /* 
  * floatPower2 - Return bit-level equivalent of the expression 2.0^x
