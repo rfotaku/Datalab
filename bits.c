@@ -276,6 +276,7 @@ int howManyBits(int x) {
   int NotZero = (!x) + (~0);
   int NotFF = (!(x+1)) + (~0);
   int NotSpe = NotZero & NotFF;
+  int flag = ~((!xflag) + (~0));
 /*log(absolute value)*/
   int temp1,temp2,temp3,temp4,temp5;
   int sign;
@@ -300,7 +301,8 @@ int howManyBits(int x) {
   temp5 = !!(abs>>1);
   int PosRet = (temp1 + temp2 + temp3 + temp4 + temp5 + 2);
 /*if x <= 0*/
-  int negx = ~x;
+  int negx;
+  negx = ~x;
   sign = !!(negx>>16);
   temp1 = sign<<4;
   negx = negx>>temp1;
@@ -319,7 +321,8 @@ int howManyBits(int x) {
 
   temp5 = !!(negx>>1);
   int NegRet = (temp1 + temp2 + temp3 + temp4 + temp5 + 2);
-  int NotSpeRet = (flag&PosRet)|((~flag)&(NegRet));
+  int NotSpeRet;
+  NotSpeRet = (flag&PosRet)|((~flag)&(NegRet));
   return (NotSpe & NotSpeRet)|((~NotSpe)&1);
 }
 //float
@@ -368,9 +371,12 @@ int floatFloat2Int(unsigned uf) {
 /*Innormalize*/
   if(!exp)  return 0;
 /*Normalize*/
-  int Negflag = (!sign) + (~0);
-  int E = ((exp>>23)&0xFF) + (~127) + 1;
-  int signE = (E>>31)&1;
+  int Negflag;
+  Negflag= (!sign) + (~0);
+  int E;
+  E = ((exp>>23)&0xFF) + (~127) + 1;
+  int signE;
+  signE = (E>>31)&1;
   if(!E) return (Negflag&(~0))|((~Negflag)&1);
   if(signE) return 0;
   int NotOver = ((E + (~32) + 1)>>31)&1;
