@@ -168,8 +168,9 @@ int tmin(void) {
  *   Rating: 1
  */
 int isTmax(int x) {
-  int y = (1<<31) + (~0);
-  return (!(x^y));
+  int NotNeg = !(x + 1) + (~0);
+  int y = ~x + (~0);
+  return NotNeg&(!(x^y));
 }
 /* 
  * allOddBits - return 1 if all odd-numbered bits in word set to 1
@@ -275,12 +276,6 @@ int howManyBits(int x) {
   int NotZero = (!x) + (~0);
   int NotFF = (!(x+1)) + (~0);
   int NotSpe = NotZero & NotFF;
-/*get the absolute value*/
-
-  int flag = xflag + (~0);
-/*
-  int abs = (flag&x) | ((~flag)&(~x+1));
-*/
 /*log(absolute value)*/
   int temp1,temp2,temp3,temp4,temp5;
   int sign;
